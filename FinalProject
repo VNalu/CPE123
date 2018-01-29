@@ -1,0 +1,2214 @@
+/*
+This project is by:
+Garrett Foushay
+Veronica Pollock
+Avinash Vadlamudi
+Elizabeth Yuen
+*/
+
+var changeDoor;
+var loc, dir;
+var animate;
+
+var moveLegL, moveLegR;
+var moveArmL, moveArmR;
+
+var legDownL, legDownR;
+var armDownL, armDownR;
+
+var moveHead, headDown;
+var movePaper, paperDown;
+
+var character;
+var Boy = "b";
+var Girl = "g";
+var julie = "j";
+var kid = "k";
+
+var imgs = [];
+
+var deskCount = 0;
+var doorStatus = false;
+
+var fireWorks = [];
+var counter = 0;
+
+var GAME_STATE = 0;
+var PREV_STATE = 0;
+
+var maxTries = 5;
+var curTries = maxTries;
+
+var submit, hint, try1, try2, play, png, bmp, txtB, next, reset, credits, back;
+var txt;
+var imgFile;
+var correctPass = "password";
+var hintText = "What is the most common password?";
+
+var latestKey;
+
+var fireWorkA;
+var hasRun = false;
+var game_Over;
+var frameCount0 = 0;
+var txtMoveSpeed = 10;
+
+var saveKey = false;
+var savedKey = '';
+
+var savedCode = 0;
+var saveCode = false;
+
+var giveHint = false;
+
+var imgOpen = false;
+var maxConvertTries = 2;
+var convertTries = maxConvertTries;
+
+var charChoice;
+
+var qNum = 0;
+var q = [];
+
+function resetVars()
+{
+	frameRate(60);
+
+	maxTries = 5;
+	curTries = maxTries;
+	saveKey = false;
+	savedKey = '';
+	savedCode = 0;
+	saveCode = false;
+	giveHint = false;
+	txtMoveSpeed = 10;
+	frameCount0 = 0;
+	imgOpen = false;
+	imgFile.label = "";
+	doorStatus = false;
+	hasRun = false;
+	convertTries = maxConvertTries;
+	game_Over = new PSysSquare(width/2,height/2,100);
+
+	qNum = 0;
+
+	changeDoor = false;
+	animate = false;
+
+	loc = createVector(width*.65,height*0.65);
+	dir = createVector(-0.5,0);
+
+	legDownL = false;
+	legDownR = true;
+
+	moveLegL = 0;
+	moveLegR = 0;
+
+	armDownL = false;
+	armDownR = true;
+
+	moveArmL = PI/10;
+	moveArmR = -PI/10;
+
+	headDown = false;
+	moveHead = 0;
+
+	paperDown = false;
+	movePaper = 0;
+}
+
+function preload()
+{
+	imgs.push(loadImage("Final/img0.jpg"));
+	imgs.push(loadImage("Final/img1.png"));
+	imgs.push(loadImage("Final/img2.jpg"));
+	imgs.push(loadImage("Final/img3.png"));
+	imgs.push(loadImage("Final/HappyJulie.png"));
+	imgs.push(loadImage("Final/AngryJulie.png"));
+	imgs.push(loadImage("Final/Classroom.JPG"));
+	imgs.push(loadImage("Final/img5.jpg"));
+	imgs.push(loadImage("Final/img6.png"));
+	imgs.push(loadImage("Final/keylock.png"));
+}
+
+function setup()
+{
+	createCanvas(800, 800);
+	game_Over = new PSysSquare(width/2,height/2,100);
+
+	imgFile = new button2(createVector(15, 50), 									//position
+						createVector(60*0.8, 80*0.8), 								//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"");														//button's text
+
+	submit = new button(createVector(width/2-(20*4)/2, height/2-20/2 + 14), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Submit");													//button's text
+
+	txt = new textBox(createVector(width/2-(20*8)/2, height/2-20/2 - 14), 		//position
+					  20, 														//size
+					  createVector(255, 255, 255),								//fill color of botton
+					  createVector(255, 255, 255),								//color of button outline
+					  createVector(0, 0, 0),									//color of button text
+					  "Password");												//buttons text
+
+	try1 = new button(createVector(width/2-(20*4)/2 -50, height/2-20/2 + 60), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Try Again");													//button's text
+
+	try2 = new button(createVector(width/2-(20*4)/2 +50, height/2-20/2 + 60), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Quit");													//button's text
+
+	hint = new button(createVector(width/2-(20*4)/2, height/2-20/2 + 39), 			//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Hint");													//button's text
+
+	play = new button(createVector(width/2-(100*4)/2, height/8), 				//position
+						100, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Play Game");												//button's text
+
+	bmp = new button(createVector(width/2-(20*4)/2 -120, height/2+ 75), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						".bmp");													//button's text
+
+	txtB = new button(createVector(width/2-(20*4)/2, height/2+ 75), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						".txt");													//button's text
+
+	png = new button(createVector(width/2-(20*4)/2 + 120, height/2+ 75), 		//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						".png");													//button's text
+
+	next = new button(createVector(10, 10), 										//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Next");													//button's text
+
+	reset = new button(createVector(width/2-(20*4)/2, height/2-20/2 + 45), 										//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Play Again");													//button's text
+
+	credits = new button(createVector(10, 10), 										//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Credits");													//button's text
+
+	back = new button(createVector(10, 10), 										//position
+						20, 														//size
+						createVector(255, 255, 255),								//fill color of botton
+						createVector(255, 255, 255),								//color of button outline
+						createVector(0, 0, 0),										//color of button text
+						"Back");													//button's text
+
+	charChoice = genButtons("Boy", "Girl");
+
+	q.push(genButtons("fill(255, 150, 0);", "fill(255, 255, 0);"));
+	q.push(genButtons2("rect(100, 240, 190, 25);", "rect(100, 240, 25, 190);"));
+	q.push(genButtons("rect(100, 265, 30, 50);", "rect(200, 265, 30, 50);"));
+	q.push(genButtons2("rect(100, 265, 50, 30)", "rect(160, 265, 30, 50);"));
+	q.push(genButtons("ellipse(150, 250, 75, 60);", "ellipse(275, 250, 60, 75);"));
+
+	changeDoor = false;
+	animate = false;
+
+	loc = createVector(width*.65,height*0.65);
+	dir = createVector(-0.5,0);
+
+	legDownL = false;
+	legDownR = true;
+
+	moveLegL = 0;
+	moveLegR = 0;
+
+	armDownL = false;
+	armDownR = true;
+
+	moveArmL = PI/10;
+	moveArmR = -PI/10;
+
+	headDown = false;
+	moveHead = 0;
+
+	paperDown = false;
+	movePaper = 0;
+
+}
+
+function draw()
+{
+	background(0);
+	noStroke();
+	switch(GAME_STATE)
+	{
+		case 0:
+		{
+			mainScreen();
+			break;
+		}
+		case 1:
+		{
+			cutScene1();
+			break;
+		}
+		case 2:
+		{
+			accessComputer();
+			break;
+		}
+		case 3:
+		{
+			cutScene2();
+			break;
+		}
+		case 4:
+		{
+			accessImg();
+			break;
+		}
+		case 5:
+		{
+			cutScene3();
+			break;
+		}
+		case 6:
+		{
+			decryptImg();
+			break;
+		}
+		case 7:
+		{
+			switchDeskCount();
+			break;
+		}
+		case 8:
+		{
+			gameOver(PREV_STATE);
+			break;
+		}
+		case 9:
+		{
+			mainLevel();
+			break;
+		}
+		case 10:
+		{
+			endGame();
+			break;
+		}
+		case 11:
+		{
+			finalCutScene();
+			break;
+		}
+		case 12:
+		{
+			chooseCharacter();
+			break;
+		}
+		case 13:
+		{
+			endCredits();
+			break;
+		}
+		default:
+		{
+			console.log("Invalid game state!");
+			break;
+		}
+	}
+}
+
+function endCredits()
+{
+	
+	textAlign(CENTER, CENTER);
+	textSize(40);
+	
+	fill(255);
+	text("Storyboard Designer: Veronica Pollock", 400, 400);
+	text("Puzzles: Garrett Foushay", 400, 440);
+	text("Background: Avinash Vadlamudi", 400, 480);
+	text("Character Design: Elizabeth Yuen", 400, 520);
+
+	if(back.checkButton())
+	{
+		GAME_STATE = 10;
+	}
+}
+
+function chooseCharacter()
+{
+	background(128);
+	drawBoy(600,200,.8);
+	drawGirl(200,200,.8);
+
+	if(charChoice[0].checkButton())
+	{
+		character =  Boy;
+		GAME_STATE = 9;
+	}
+	if(charChoice[1].checkButton())
+	{
+		character =  Girl;
+		GAME_STATE = 9;
+	}
+}
+
+function endGame()
+{
+    background(0);
+
+    strokeWeight(5);
+    stroke(255);
+	fill(240, 0, 0);
+
+	textAlign(CENTER, CENTER);
+	textSize(60);
+
+	text("You Win!", width/2, height/2);
+
+	if(reset.checkButton())
+	{
+		resetVars();
+		deskCount = 0;
+		GAME_STATE = 0;
+	}
+
+   //Draw a new firework every 30 frames
+   if(counter%30 == 0)
+   {
+      fireWorks.push(new fireWork(random(30, width-30), random(50, height-50), 
+                           createVector(random(255), random(255), random(255))));
+   }
+
+   for(var i = 0; i < fireWorks.length; i++)
+   {
+      fireWorks[i].run();
+
+      //Use the life of the particles in the fireworks
+      //to determine if a firework should be removed, 
+      //and then remove it
+      if(fireWorks[i].particleSys.particles[0].life <= 95)
+      {
+         fireWorks.shift();
+      }
+   }
+
+   if(credits.checkButton())
+   {
+   		GAME_STATE = 13;
+   }
+
+   counter++;
+}
+
+function mainScreen()
+{
+	if(play.checkButton())
+	{
+		GAME_STATE = 12;
+	}
+}
+
+function cutScene1()
+{
+	background(220, 190, 150);
+	stroke(0);
+	strokeWeight(2);
+
+	//table in front of kid who sits in front of you
+	fill(200, 150, 10);
+	quad(280, 0, 525, 0, 535, 25, 270, 25);
+	rect(270, 35, 15, 100);
+	rect(520, 35, 15, 100);
+	rect(270, 25, 265, 15);
+
+	//kid who sits in front of kis who sits in front of you
+	fill(50, 50, 100)
+	ellipse(width/2, 64, 160, 200);
+
+	//chair in front of kid who sits in front of you
+	fill(180, 130, 10);
+	rect(280, 64, 245, 200)
+
+	//kid who sits in front of you in class's desk
+	fill(200, 150, 10);
+	quad(250, 100, 550, 100, 600, 250, 200, 250);
+	rect(200, 250, 400, 30);
+	rect(200, 280, 30, 150);
+	rect(570, 280, 30, 150);
+
+	//kid who sits in front of you
+	//INSERT
+	boyBack();
+
+	//kid who sits in front of you chair
+	fill(180, 130, 10);
+	rect(220, 325, 360, 400);
+
+	//side desks
+	rect(750, 0, 20, 100);
+	triangle(750, -5, 805, -5, 805, 130);
+	rect(30, 0, 20, 100);
+	triangle(50, -5, -5, -5, -5, 130);
+
+	//your desk
+	fill(200, 150, 10);
+	quad(150, 400, 650, 400, 750, 700, 50, 700);
+	rect(50, 700, 700, 50);
+	rect(50, 750, 50, 50);
+	rect(700, 750, 50, 50);
+
+	//your sad grade
+	fill(240);
+	quad(410, 460, 516, 430, 605, 578, 455, 630);
+	strokeWeight(5);
+	stroke(255, 0, 0);
+
+	arc(480, 510, 50, 60, PI/4, -PI*10/25) // C
+
+	switchDeskCount();
+
+	//GAME_STATE = 2;
+}
+
+function cutScene2()
+{
+	image(imgs[6], 0, 0, width, height);
+	image(imgs[5], 0, 0, 600, 700);
+
+	switchDeskCount();
+	//GAME_STATE = 4;
+}
+
+function cutScene3()
+{
+	if(!hasRun)
+	{
+		hasRun = true;
+		deskCount = 25;
+	}
+	switchDeskCount();
+	//GAME_STATE = 7;
+}
+
+function finalCutScene()
+{
+	dir = createVector(0, 0);
+	loc = createVector(width*.94,height*0.725);
+
+	drawDoorFront(0,0);
+
+	drawBackground();
+
+	noStroke();
+	fill(189,170,147);
+	rect(0,0,width*.4,height);
+}
+
+function accessComputer()
+{
+	strokeWeight(1);
+	stroke(0);
+	fill(0);
+	textSize(15);
+	image(imgs[0], 0, 0, width, height);
+	textAlign(LEFT, CENTER);
+	text("Due to a quirk with detecting letters while using shift please press the desired ", 10, 10);
+	text("character twice while holding shift. Also, DO NOT try to use ENTER to submit the password!", 10, 25);
+
+	textAlign(CENTER, CENTER);
+	text("User", width/2, height/2-36)
+
+	image(imgs[1], width/2-imgs[1].width/16, height/2-180, imgs[1].width/8, imgs[1].height/8);
+
+	if(curTries < maxTries)
+	{
+		strokeWeight(1);
+		stroke(0);
+		fill(0);
+		textAlign(LEFT, CENTER);
+
+		text("Incorrect password, you have " + curTries + " attemts remaining.", 10, 50);
+		text("If you fail to enter correct password, this device will lock itself ", 10, 65);
+		text("and another attempt cannot be made for 24 hours.", 10, 80);
+
+		if(hint.checkButton())
+		{
+			giveHint = !giveHint;
+		}
+	}
+
+	if(giveHint)
+	{
+		strokeWeight(1);
+		stroke(0);
+		fill(0);
+		textAlign(LEFT, CENTER);
+
+		text(hintText, 10, 110);
+	}
+
+	if(curTries <= 0)
+	{
+		PREV_STATE = GAME_STATE;
+		GAME_STATE = 8;
+	}
+
+	if(curTries == 10)
+	{
+		strokeWeight(1);
+		stroke(0);
+		fill(0);
+		textAlign(LEFT, CENTER);
+		text("Password was correct!", 10, 95);
+		GAME_STATE = 5;
+	}
+
+	if(submit.checkButton())
+	{
+		var password = txt.check(true);
+		console.log(password);
+
+		if(password != correctPass)
+		{
+			curTries--;
+		}
+		else
+		{
+			curTries = 10;
+		}
+	}
+	txt.check(false);
+}
+
+function accessImg()
+{	
+	image(imgs[2], 0, 0, width, height);
+
+	if(imgFile.checkButton())
+	{
+		console.log("Opening...");
+		imgOpen = !imgOpen;
+	}
+
+	strokeWeight(1);
+	stroke(0);
+	fill(0);
+	textSize(15);
+
+	text("img.ico", 39.5, 130);
+
+	if(imgOpen)
+	{
+		image(imgs[3], width/2 - imgs[3].width/2, height/2 - imgs[3].height/2);
+		if(bmp.checkButton() || txtB.checkButton())
+		{
+			convertTries--;
+		}
+		if(png.checkButton())
+		{
+			convertTries = 10;
+		}
+
+		strokeWeight(1);
+		stroke(0);
+		fill(0);
+		textSize(15);
+		textAlign(LEFT, TOP);
+
+		text("Error: Unknown File Type!", (width/2-20)-65, (height/2 - imgs[3].height/2)+45, imgs[3].width);
+		text("Please choose a file type to convert to.", (width/2 - imgs[3].width/2)+45, (height/2 - imgs[3].height/2)+60, imgs[3].width);
+
+		textAlign(LEFT, CENTER);
+		speech(character, "You", "Shoot... Which do I choose?", true, false);
+
+		if(convertTries < maxConvertTries && convertTries > 0)
+		{
+			strokeWeight(1);
+			stroke(0);
+			fill(0);
+			textSize(15);
+			textAlign(LEFT, TOP);
+
+			text("You have "+ convertTries +" tries left.", (width/2 - imgs[3].width/2)+105, (height/2 - imgs[3].height/2)+75, imgs[3].width);
+		}
+		if(convertTries <= 0)
+		{
+			PREV_STATE = GAME_STATE;
+			GAME_STATE = 8;
+		}
+
+	}
+
+	if(convertTries == 10)
+		{
+			deskCount = 28;
+			GAME_STATE = 7;
+		}
+}
+
+function decryptImg()
+{
+	image(imgs[2], 0, 0, 800, 800);
+	image(imgs[9], 0, 0, 1000, 600);
+	switch (qNum) {
+		case 0:
+			qBox("Which line makes yellow?")
+			if(q[qNum][0].checkButton()) {
+				PREV_STATE = GAME_STATE;
+				GAME_STATE = 8;
+			}
+			if(q[qNum][1].checkButton()) {
+				qNum++;
+			}
+			break;
+		case 1:
+			qBox("Which line makes the long bar?")
+			if(q[qNum][0].checkButton()) {
+				qNum++;
+			}
+			if (q[qNum][1].checkButton()) {
+				PREV_STATE = GAME_STATE;
+				GAME_STATE = 8;
+			}
+			break;
+		case 2:
+			qBox("Which line makes the first prong?")
+			if(q[qNum][0].checkButton()) {
+				qNum++;
+			}
+			if (q[qNum][1].checkButton()) {
+				PREV_STATE = GAME_STATE;
+				GAME_STATE = 8;
+			}
+			break;
+		case 3:
+			qBox("Which line makes the second prong?")
+			if(q[qNum][1].checkButton()) {
+				qNum++;
+			}
+			if (q[qNum][0].checkButton()) {
+				PREV_STATE = GAME_STATE;
+				GAME_STATE = 8;
+			}
+			break;
+		case 4:
+			qBox("Which line makes the handle?")
+			if(q[qNum][1].checkButton()) {
+				deskCount = 42; 
+				GAME_STATE = 7;
+			}
+			if (q[qNum][0].checkButton()) {
+				PREV_STATE = GAME_STATE;
+				GAME_STATE = 8;
+			}
+			break;
+	}
+	//deskCount = 42;
+	//GAME_STATE = 7;
+}
+
+function mainLevel()
+{
+	GAME_STATE = 1;
+}
+
+function gameOver(calledFrom)
+{
+	var returnTo = calledFrom;
+	strokeWeight(5);
+	stroke(255);
+	fill(240, 0, 0);
+
+	textAlign(CENTER, CENTER);
+	textSize(60);
+	
+	if(frameCount0 >= height/2)
+	{
+		frameRate(30);
+		frameCount0 = height/2;
+		txtMoveSpeed = 0;
+		game_Over.run();
+	}
+
+	text("GAME OVER", width/2, frameCount0);
+	frameCount0+= txtMoveSpeed;
+
+	if(try1.checkButton())
+	{
+		console.log("Try Again");
+		resetVars();
+		GAME_STATE = returnTo;
+	}
+
+	if(try2.checkButton())
+	{
+		console.log("Quit");
+		resetVars();
+		GAME_STATE = 0;
+	}
+}
+
+function button(pos, size, colBox, colOutline, colText, label) 
+{
+	console.log("Creating button: " + label);
+	this.isClicked = false;
+	this.x = pos.x;
+	this.y = pos.y;
+	this.w = size*4;
+	this.h = size;
+	this.col = colBox;
+	this.colOut = colOutline;
+	this.colText = colText;
+	this.label = label;
+	
+	textSize(2*this.h/3);
+	textAlign(CENTER, CENTER);
+	
+	stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+	fill(this.col.x, this.col.y, this.col.z);
+	rect(this.x, this.y, this.w, this.h);
+
+	stroke(this.colText.x, this.colText.y, this.colText.z);
+	fill(this.colText.x, this.colText.y, this.colText.z);
+	text(this.label, this.x, this.y, this.w, this.h);
+	
+	this.checkButton = function()
+	{
+		textAlign(CENTER, CENTER);
+		strokeWeight(1);
+		stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+		fill(this.col.x, this.col.y, this.col.z);
+		rect(this.x, this.y, this.w, this.h);
+
+		stroke(this.colText.x, this.colText.y, this.colText.z);
+		fill(this.colText.x, this.colText.y, this.colText.z);
+		textSize(2*this.h/3);
+		text(this.label, this.x, this.y, this.w, this.h);
+
+		if(mouseX > this.x && mouseY > this.y && mouseX < this.x+this.w && mouseY < this.y+this.h)
+		{
+
+			stroke(0, 255, 0, 90);
+			strokeWeight(10);
+			fill(0, 0, 0, 0);
+			rect(this.x, this.y, this.w, this.h);
+
+			if(mouseIsPressed && mouseButton == LEFT && !this.isClicked) 
+			{
+				this.isClicked = true;
+				return true;
+			}
+			if(!mouseIsPressed) this.isClicked = false;
+		}
+		return false;
+	}
+}
+
+function button2(pos, size, colBox, colOutline, colText, label) 
+{
+	console.log("Creating button: " + label);
+	this.isClicked = false;
+	this.x = pos.x;
+	this.y = pos.y;
+	this.w = size.x;
+	this.h = size.y;
+	this.col = colBox;
+	this.colOut = colOutline;
+	this.colText = colText;
+	this.label = label;
+	this.textSize = 2*this.h/3;
+	
+	textSize(this.textSize);
+	textAlign(CENTER, CENTER);
+	
+	stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+	fill(this.col.x, this.col.y, this.col.z);
+	rect(this.x, this.y, this.w, this.h);
+
+	stroke(this.colText.x, this.colText.y, this.colText.z);
+	fill(this.colText.x, this.colText.y, this.colText.z);
+	text(this.label, this.x, this.y, this.w, this.h);
+	
+	this.checkButton = function()
+	{
+		textSize(this.textSize);
+		textAlign(CENTER, CENTER);
+		strokeWeight(1);
+		stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+		fill(this.col.x, this.col.y, this.col.z);
+		rect(this.x, this.y, this.w, this.h);
+
+		stroke(this.colText.x, this.colText.y, this.colText.z);
+		fill(this.colText.x, this.colText.y, this.colText.z);
+		text(this.label, this.x, this.y, this.w, this.h);
+
+		if(mouseX > this.x && mouseY > this.y && mouseX < this.x+this.w && mouseY < this.y+this.h)
+		{
+
+			stroke(0, 255, 0, 90);
+			strokeWeight(10);
+			fill(0, 0, 0, 0);
+			rect(this.x, this.y, this.w, this.h);
+
+			if(mouseIsPressed && mouseButton == LEFT && !this.isClicked) 
+			{
+				this.isClicked = true;
+				return true;
+			}
+			if(!mouseIsPressed) this.isClicked = false;
+		}
+		return false;
+	}
+}
+
+function textBox(pos, size, colBox, colOutline, colText, label)
+{
+	console.log("Creating textbox: " + label);
+	this.isClicked = false;
+	this.isSelected = false;
+
+	this.charArray = [];
+	this.str = "";
+
+	this.x = pos.x;
+	this.y = pos.y;
+	this.w = size*8;
+	this.h = size;
+	this.col = colBox;
+	this.colOut = colOutline;
+	this.colText = colText;
+	this.label = label;
+
+	textSize(2*this.h/3);
+	textAlign(CENTER, TOP);
+	
+	stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+	fill(this.col.x, this.col.y, this.col.z);
+	rect(this.x, this.y, this.w, this.h);
+
+	stroke(this.colText.x, this.colText.y, this.colText.z);
+	fill(this.colText.x, this.colText.y, this.colText.z);
+	text(this.label, this.x, this.y, this.w, this.h);
+	
+	this.check = function(checkString)
+	{
+		textSize(2*this.h/3);
+		textAlign(CENTER, TOP);
+
+		this.lastChar = this.curChar;
+		this.curChar = getKey();
+
+		if(this.isSelected) 
+		{
+			this.str = this.charArray.join("");
+			this.label = this.str;
+		}
+		else
+		{
+			this.label = label;
+			this.str = "";
+			this.charArray = [];
+		}
+
+		strokeWeight(1);
+		stroke(this.colOut.x, this.colOut.y, this.colOut.z);
+		fill(this.col.x, this.col.y, this.col.z);
+		rect(this.x, this.y, this.w, this.h);
+
+		if(this.isSelected)
+		{
+			stroke(this.colText.x, this.colText.y, this.colText.z, 255);
+			fill(this.colText.x, this.colText.y, this.colText.z, 255);
+		}
+		else
+		{
+			stroke(this.colText.x, this.colText.y, this.colText.z, 60);
+			fill(this.colText.x, this.colText.y, this.colText.z, 60);
+		}
+		text(this.label, this.x, this.y, this.w, this.h);
+
+
+		if(mouseX > this.x && mouseY > this.y && mouseX < this.x+this.w && mouseY < this.y+this.h)
+		{
+
+			stroke(0, 255, 0, 90);
+			strokeWeight(10);
+			fill(0, 0, 0, 0);
+			rect(this.x, this.y, this.w, this.h);
+
+			if(mouseIsPressed && mouseButton == LEFT && !this.isClicked) 
+			{
+				this.isClicked = true;
+				this.isSelected = true;
+			}
+			if(!mouseIsPressed) this.isClicked = false;
+		}
+		else if(mouseIsPressed)
+		{
+			this.isSelected = false;
+		}
+
+		if(this.isSelected)
+		{
+			stroke(0, 255, 0, 180);
+			strokeWeight(4);
+			fill(0, 0, 0, 0);
+			rect(this.x, this.y, this.w, this.h);
+		}
+
+		var backspaceDown = isBackspace();
+
+		if(this.isSelected && backspaceDown)
+		{	
+			this.charArray.pop();
+			console.log(this.charArray);
+		}
+
+		if(this.curChar == '')
+		{
+			this.curChar = '/';
+			getKey();
+		}
+
+		if(this.isSelected && this.curChar != '/' && !backspaceDown)
+		{	
+			this.charArray.push(this.curChar);
+			console.log(this.charArray);
+			this.curChar = '/';
+		}
+
+		if(checkString) return this.str;
+		return "";
+	}
+}
+
+function keyTyped()
+{
+	savedKey = key;
+}
+
+function keyPressed()
+{
+	savedCode = keyCode;
+}
+
+function getKey()
+{
+	var tempKey = '/';
+
+	if(keyIsPressed && !saveKey)
+	{
+		saveKey = true;
+		tempKey = savedKey;
+		if(tempKey == '') tempKey = '/';
+		savedKey = '';
+		return tempKey;
+	}
+	else if(!keyIsPressed)
+	{
+		saveKey = false;
+		return '/';
+	}
+
+	return '/';
+}
+
+function isBackspace()
+{
+	if(savedCode == BACKSPACE && !saveCode)
+	{
+		saveCode = true;
+		savedCode = 0;
+		return true;
+	}
+	else if(!keyIsPressed)
+	{
+		saveCode = false;
+		return false;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function keyReleased()
+{
+	latestKey = '/';
+
+	return false;
+}
+
+//Function to define a single particle - Random Particle
+function ParticleSquare(x,y)
+{
+	//Data associated with a particle
+	//this.accelY = random(0.05,0.1); //gravitational effect
+	this.velX = random(-3,3);
+	this.velY = random(-3,3);
+
+	//Color and position declaration of particle
+	//Fill color
+	this.pcolorR = random(0,255); //red color of particle
+	this.pcolorB = random(0,255); //blue color of particle
+	this.pcolorG = random(0,255); //green color of particle
+	//Stroke Color
+	this.scolorR = random(0,255); //red stroke of particle
+	this.scolorB = random(0,255); //blue stroke of particle
+	this.scolorG = random(0,255); //green stroke of particle
+	//Location
+	this.locX = x;
+	this.locY = y;
+	//Particle Size
+	this.rW = 15; //defines width of particle
+	this.rH = 15; //defines the height of particle
+	this.life = random(100,200);
+
+	//Function to update particle each frame
+	this.updateP = function()
+	{
+		//this.velY += this.accelY;
+		this.locX += this.velX;
+		this.locY += this.velY;
+		this.life -= random(0,2);
+	};
+
+	//function to draw a particle
+	this.renderP = function()
+	{
+		push();
+			//coloring of particle
+			fill(this.pcolorR,this.pcolorB,this.pcolorG,this.life);
+			stroke(this.scolorR,this.scolorB,this.scolorG,this.life);
+			translate(this.locX,this.locY);
+			rect(0,0,this.rW,this.rH);
+		pop();
+	};
+}  //End of defining a single particle
+
+//Define a group of particles as a Particle System - Random Particle
+function PSysSquare(sX,sY,num)
+{
+	this.particles = [];
+	for(var i=0; i<num; i++)
+	{
+		this.particles.push(new ParticleSquare(sX,sY));
+	}
+
+	//Define what each particle should do each frame
+	this.run = function()
+	{
+		for(var i=0; i< this.particles.length; i++)
+		{
+			//Update each particle per frame
+			this.particles[i].updateP();
+			this.particles[i].renderP();
+		}
+	}
+} //end function to define a particle system - Random Particle
+
+function drawBoy(x, y, sc)
+{
+	
+	//boy
+	noStroke();
+	push();
+		translate(x, y);
+		scale(sc);
+
+
+		stroke(0);
+		strokeWeight(1);
+
+		fill(0, 200, 255);//clothes
+		arc(0, 2*height/3, 370, 600, PI, 0);
+	
+		fill(0);
+		arc(-120, -50, 100, 160, PI/2, 3*PI/2);
+		fill(229, 172, 128);//face
+
+		rect(-60, 155, 120, 100);
+		ellipse(0, 0, 300, 350);
+		fill(0, 200, 255);//clothes
+	
+		triangle(-90, 200, 0, 255, -120, 285);
+		triangle(90, 200, 0, 255,  120, 285);
+	
+
+		stroke(0);
+		strokeWeight(3);
+		fill(30, 184, 209, 100);
+		rect(-110, -80, 80, 50);
+		rect(30, -80, 80, 50);
+		line(-30, -55, 30, -55);
+		noFill();
+
+		beginShape();
+			bezier(0, -55, -10, 20, 30, 10, 0, 50);
+			bezier(-55, 80, -10, 100, 50, 50, 80, 90);
+		endShape();
+
+		fill(0);
+
+		beginShape();//hair
+			bezier(120, -140, -120, -250, -210, -40, -90, -80);
+		endShape();
+	pop();
+}
+
+function drawGirl(x, y, sc)
+{
+	push();
+		translate(x, y);
+		scale(sc);
+		//bust
+		stroke(0);
+		strokeWeight(1);
+		fill(200, 60, 100);
+		arc(0, 2*height/3, 380, 650, PI, 0);
+
+		
+		//Ponytails
+		noStroke();
+		fill(0);
+		arc(0, 150, 400, 400, PI, 0);
+		arc(-200, 140, 300, 300, 0, PI/2);
+		arc(200, 140, 300, 300, PI/2, PI);
+		
+		stroke(0);
+		strokeWeight(1);
+		fill(229, 172, 128);//face
+		rect(-60, 155, 120, 100);
+		ellipse(0, 0, 300, 350);
+		noStroke();
+		fill(220, 200, 200);
+		arc(-90, 245, 190, 50, 7*PI/4, 3*PI/4);
+		arc(90, 245, -190, 50, 7*PI/4, 3*PI/4);
+		//eyes
+		fill(0);
+		ellipse(-70, -45, 50);
+		ellipse(70, -45, 50);
+		noFill();
+		stroke(0);
+		strokeWeight(3);
+
+		beginShape();
+			bezier(-95, -50, -70, -70, -130, -20, -120, -55);//left eyelash
+			bezier(95, -50, 70, -70, 130, -20, 120, -55);//left eyelash
+			bezier(0, -55, -10, 20, 30, 10, 0, 50);//nose
+			fill(0);
+			bezier(-55, 90, -20, 140, 50, 120, 80, 90);//mouth
+		endShape();
+		fill(0)
+		;
+		beginShape();//hair
+			bezier(110, -160, -120, -250, -210, -40, -120, -60);
+			bezier(100, -165, 175, -150, 120, 0, -90, -60);
+		endShape();
+	pop();
+}
+
+function drawJulie(x, y, sc)
+{
+	push();
+	translate(x, y);
+	scale(sc);
+	noStroke();
+	fill(128);
+	//shirt
+	rect(0, 0, 70, 100);
+	arc(35, 0, 70, 45, PI, 0);
+	triangle(0, -10, -20, 15, 0, 25);
+	triangle(70, -10, 90, 15, 70, 25);
+	fill(0);
+	textSize(7.5);
+	text("There's no place like", 0, 20);
+	text("127.0.0.1", 20, 35);
+	//pants
+	fill(20, 55, 100);
+	quad(10, 100, 60, 100, 50, 180, 15, 180);
+
+	//arms
+	push();//left
+	
+	fill(229, 202, 158);
+	rotate(PI/6);
+	quad(-5, 22, 10, 22, 5, 70, 0, 70);
+	
+	
+	pop();
+
+	push();//right
+	fill(229, 202, 158);
+	rotate(-PI/20);
+	quad(65, 35, 80, 30, 105, 70, 100, 70);
+	pop();
+
+
+	pop();
+}
+
+function drawSuspect(sc)
+{	
+	if(character == Boy)
+	{
+		drawBoy(400, 400, 0.5);
+	}
+	if(character == Girl)
+	{
+		drawGirl(400, 400, 0.5);
+	}
+}
+
+// Example of very simple particle systems - introduction to objects in javascript
+
+// define a single particle
+function Particle(x , y, vel, col) // you will need to modify the parameters
+{
+   // the data associated with a particle
+   this.vel = createVector(vel.x, vel.y);
+   this.vel.normalize()
+   this.vel.mult(2);
+
+   this.accelY = 0.05; //gravity
+   this.velX = random(-1, 1) + this.vel.x;
+   this.velY = random(-1, 1) + this.vel.y;
+
+   // note this particle only can vary its blue color 
+   // - change this to include red and green
+   this.pcolorR = col.x;
+   this.pcolorG = col.y;
+   this.pcolorB = col.z;
+   this.locX = x;
+   this.locY = y;
+   this.r = 8.0;
+   this.life = 100;
+  
+   // a function to update the particle each frame
+   this.updateP = function()
+   {
+      this.velY += this.accelY;
+      this.locX += this.velX;
+      this.locY += this.velY;
+      this.life -= 0.03;
+
+      this.pcolorR *= map(this.life, 0, 100, 0, 1);
+      this.pcolorG *= map(this.life, 0, 100, 0, 1);
+      this.pcolorB *= map(this.life, 0, 100, 0, 1);
+   };
+  
+   // function to draw a particle
+   this.renderP = function() 
+   {
+      noStroke();
+      push();
+         fill(this.pcolorR, this.pcolorG, this.pcolorB);
+         translate(this.locX, this.locY);
+         ellipse(0, 0, this.r, this.r);
+      pop();
+   };
+} //end of particle object definition
+
+
+// define a group of particles as a particleSys
+function PSys(sX, sY, num, vel, col)
+{
+   // the data - lots of particles
+   this.particles = [];
+   for (var i=0; i < num; i++) 
+   {
+      col.x *= random(0.95, 1);
+      col.y *= random(0.95, 1);
+      col.z *= random(0.95, 1);
+
+      this.particles.push(new Particle(sX, sY, vel, col));
+   }
+  
+   // function defining what to do each frame
+   this.run = function() 
+   {
+      for (var i=0; i < this.particles.length; i++) 
+      {
+         //update each particle per frame
+         this.particles[i].updateP();
+         this.particles[i].renderP();
+      }
+   }
+}
+
+function fireWork(x, y, col)
+{
+   this.finPos = createVector(x, y);
+   this.pos = createVector(random(width)-20, height);
+   
+   this.dir = createVector(x, y);
+   this.dir.sub(this.pos);
+   this.dir.normalize();
+   this.dir.mult(random(5, 8));
+   
+   this.particleSys = new PSys(x, y, 20, this.dir, col);
+
+   this.run = function()
+   {
+      this.pos.add(this.dir);
+
+      if(this.finPos.y <= this.pos.y)
+      {
+         push();
+            translate(this.pos.x, this.pos.y);
+            rotate(atan2(this.dir.y, this.dir.x)+PI/2);
+            noStroke();
+            fill(col.x, col.y, col.z);
+            rect(-5, -2, 10, 20);
+            fill(255, 0, 0);
+            triangle(7, 0,
+                    -7, 0,
+                     0, -15);
+         pop();
+      }
+      else
+      {
+         this.particleSys.run();
+      }
+   }
+}
+
+function boyBack() {
+	fill(255);
+	rect(430, 120, 80, 100)
+	stroke(255, 0, 0);
+	line(480, 130, 470, 155);
+	line(480, 130, 490, 157);
+	line(475, 143, 485, 146);
+	stroke(0);
+	fill(255, 150, 0);
+	ellipse(width/2, height/2, 300, 500);
+	fill(0);
+	ellipse(width/2, 100, 150);
+}
+
+function switchDeskCount() {
+	textAlign(LEFT, CENTER);
+	strokeWeight(3);
+	switch(deskCount) {
+		case 0: {
+			speech(character, "You", "Gosh... That final was tough.", true, false);
+			break;
+		}
+		case 1: {
+			speech(character, "You", "I knew most of it but I made so many stupid mistakes!", false, false);
+			break;
+		}
+		case 2: {
+			speech(0, " ", " ", true, true);
+			break;
+		}
+		case 3: {
+			GAME_STATE = 3;
+			speech(0, "Julie", "I have some unfortunate news for everyone", true, false);
+			break;
+		}
+		case 4: {
+			speech(0, " ", " ", true, true);
+			break;
+		}
+		case 5: {
+			GAME_STATE = 1;
+			speech(character, "You", "What is it now?", true, false);
+			break;
+		}
+		case 6: {
+			speech(0, " ", " ", true, true);
+			break;
+		}
+		case 7: {
+			GAME_STATE = 3;
+			speech(0, "Julie", "Someone used the answer key to cheat on the final", true, false);
+			break;
+		}
+		case 8: {
+			speech(character, "You", "*Gasp*", true, false);
+			break;
+		}
+		case 9: {
+			image(imgs[3], 100, 2000, width, height);
+			speech(0, "Julie", "This is really upsetting", true, false);
+			break;
+		}
+		case 10: {
+			speech(0, "Julie", "I want that person to come forward and admit their crime", true, false);
+			break;
+		}
+		case 11: {
+			speech(0, "No one", "*comes forward*", true, false);
+			break;
+		}
+		case 12: {
+			speech(0, "Julie", "I'm sorry", true, false);
+			break;
+		}
+		case 13: {
+			speech(0, "Julie", "But if we can't find the cheater by the end of the day", true, false);
+			break;
+		}
+		case 14: {
+			speech(0, "Julie", "Everyone will get an 'F' on their final", true, false);
+			break;
+		}
+		case 15: {
+			speech(0, " ", " ", true, true);
+			break;
+		}
+		case 16: {
+			GAME_STATE = 1;
+			speech(kid, "Kid Who Sits In Front of You in Class", "What the freak!?", true, false);
+			break;
+		}
+		case 17: {
+			speech(kid, "Kid Who Sits In Front of You in Class", "I worked really hard to get this 'A'!", true, false);
+			break;
+		}
+		case 18: {
+			speech(character, "You to 'Kid Who Sits In Front of You in Class'", "Shut up", true, false);
+			break;
+		}
+		case 19: {
+			speech(character, "You", "There's no way I'm going to fail because of someone else", true, false);
+			break;
+		}
+		case 20: {
+			background(0);
+			speech(character, "You", "If they won't come forward, I'll find them myself.", false, false)
+			break;
+		}
+		case 21: {
+			background(0);
+			break;
+		}
+		case 22:
+		{
+			image(imgs[7], 0, 0);
+			speech(character, "You", "I've found the computer with answers on it.", true, false);
+			break;
+		}
+		case 23:
+		{
+			image(imgs[7], 0, 0);
+			speech(character, "You", "Dang. What's the password?", true, false);
+			break;
+		}
+		case 24:
+		{
+			GAME_STATE = 2;
+			break;
+		}
+		case 25:
+		{
+			image(imgs[8], 0, 0);
+			speech(character, "You", "I'm in! And there's the security footage too!", true, false);
+			break;
+		}
+		case 26:
+		{
+			image(imgs[8], 0, 0);
+			speech(character, "You", "Looks like only one person accessed the computer that day!", true, false);
+			break;
+		}
+		case 27:
+		{
+			GAME_STATE = 4;
+			break;
+		}
+		case 28:
+		{
+			scene();
+			changeDoor = true;
+			speech(character, "You", "What are you doing here?", true, false);
+			break;
+		}
+		case 29:
+		{
+			scene();
+			speech(kid, "Kid Who Sits In Front of You in Class", "Finding the cheater! What are you doing?", true, false);
+			break;
+		}
+		case 30:
+		{
+			scene();
+			speech(character, "You", "Same, but I've basically found them.", true, false);
+			break;
+		}
+		case 31:
+		{
+			scene();
+			speech(character, "You", "I'm loading the security picture of them right now.", true, false);
+			break;
+		}
+		case 32:
+		{
+			scene();
+			speech(kid, "Kid Who Sits In Front of You in Class", "Wow, I'm impressed", true, false);
+			break;
+		}
+		case 33:
+		{
+			scene();
+			speech(kid, "Kid Who Sits In Front of You in Class", "Looks like the image loaded. Who is it?", true, false);
+			break;
+		}
+		case 34:
+		{
+			image(imgs[8], 0, 0);
+			drawSuspect(1);
+			speech(character, "You", "What the heck? That's me.", true, false);
+			break;
+		}
+		case 35:
+		{
+			scene();
+			speech(kid, "Kid Who Sits In Front of You in Class", "Oh my gosh! I have to tell Julie!!", true, false);
+			break;
+		}
+		case 36:
+		{
+			scene();
+			animate = true;
+			speech(character, "You", "Wait! This is a lie!", true, false);
+			break;
+		}
+		case 37:
+		{
+			scene();
+			speech(character, "You", "Ugh, I should lock the door.", true, false);
+			break;
+		}
+		case 38:
+		{
+			image(imgs[8], 0, 0);
+			drawSuspect(1);
+			speech(character, "You", "Somebody altered the image!", true, false);
+			break;
+		}
+		case 39:
+		{
+			image(imgs[8], 0, 0);
+			drawSuspect(1);
+			speech(character, "You", "I have to change it back!", true, false);
+			break;
+		}
+		case 40:
+		{
+			image(imgs[8], 0, 0);
+			drawSuspect(1);
+			speech(character, "You", "I bet it's the kid who sits in front of me in class.", true, false);
+			break;
+		}
+		case 41:
+		{
+			GAME_STATE = 6;
+			break;
+		}
+		case 42:
+		{
+			finalCutScene();
+			speech(0,"Kid who sits in front of you in class", "We've caught you now", true,false);
+			break;
+		}
+		case 43:
+		{
+			finalCutScene();
+			speech(character, "You", "I was framed! The real culprit's image is loading now!",true, false);
+			break;
+		}
+		case 44:
+		{
+			finalCutScene();
+			speech(character, "You to self", "Kid who sits in front of class, I've got you now!",true, false);
+			break;
+		}
+		case 45:
+		{
+			image(imgs[0], 0, 0, width, height);
+			image(imgs[4], 0, 0);
+			speech(character, "You", "Wait, that's Julie!",true,false);
+			break;
+		}
+		case 46:
+		{
+			finalCutScene();
+			image(imgs[4], -100, 0);
+			drawAbu();
+			speech(0, "Julie", "Congratualtions! You got an A on the final",true,false);
+			break;
+		}
+		case 47:
+		{
+			finalCutScene();
+			image(imgs[4], -100, 0);
+			speech(character, "You", "WHAT", true, false);
+			break;
+		}
+		case 48:
+		{
+			finalCutScene();
+			image(imgs[4], -100, 0);
+			speech(character, "You", "THE", true, false);
+			break;
+		}
+		default:
+		{
+			GAME_STATE = 10;
+		}	
+	}
+	if(next.checkButton())
+	{
+		deskCount++;
+	}
+}
+
+function speech(char, speaker, txt, moreTF, blank) { //added by Veronica
+	fill(128);
+	stroke(255);
+	rect(25, 625, 750, 150, 25);
+
+	if(char == Boy) {
+		drawBoy(125, 468, 0.3);
+	}
+	else if(char == Girl) {
+		drawGirl(125, 468, 0.3);
+	}
+	else if(char == kid)
+	{
+		drawKid(125, 590, 0.65);
+	}
+	strokeWeight(3);
+	if(!blank) {
+		fill(0);
+		strokeWeight(3);
+		textSize(25);
+		text(speaker + ": ", 50, 675);
+		text("' " + txt + " '", 60, 725);
+		if(moreTF) {
+			textSize(50);
+			strokeWeight(3);
+			text(". . .", 675, 740);
+		}
+	}
+	else {
+		fill(0);
+		strokeWeight(3);
+		if(moreTF) {
+			textSize(50);
+			strokeWeight(3);
+			text(". . .", 675, 740);
+		}
+	}
+}
+
+function scene()
+{
+	drawDoor();
+
+	if(changeDoor)
+		drawDoorBack();
+
+	if(animate)
+		moveMan();
+
+	noStroke();
+	fill(189,170,147);
+	rect(0,0,width*.4,height);
+	//If mouseClicked, draw man at door
+}
+
+function drawDoor()
+{
+	fill(189,170,147);
+	rect(0,0,width,height);
+	//Draw Door
+	strokeWeight(3);
+	stroke(0);
+	fill(116,106,88);
+	rect(width*.4,height*.2,width*.5,height*.8);
+	//Draw Doorknob
+	fill(0);
+	ellipse(width*.8,height*.65,30);
+}
+
+function drawDoorBack()
+{	
+	fill(241,193,133);
+	stroke(0);
+	rect(width*.4,height*.2,width*.5,height*.8);
+	drawRunningman();
+}
+
+function drawRunningman()
+{
+	noStroke();
+	noStroke();
+	push();
+		translate(loc.x,loc.y);
+		fill(230,100,0);
+
+		arc(0,-100, 150, 70, PI, 0);
+		
+		quad(-75, -100, 75, -100, 60, 60, -60, 60);	
+		//Draw Head
+		push();
+			translate(0,-175)
+			fill(122,56,25);
+			rect(-20, 12, 40, 30);	//Neck
+			translate(0,5);
+			rotate(moveHead);
+			fill(122, 56, 25);
+			ellipse(0,-40, 120, 130);//head
+			fill(0);
+			arc(0, -75, 98, 60, PI, 0);
+
+			//Facial Features
+			stroke(0);
+			strokeWeight(2);
+			if(animate)
+			{
+				line(-30, -65, -15, -70);
+				line(15, -70, 30, -65);
+			}
+			else
+			{
+				line(-30, -70, -15, -65);
+				line(15, -65, 30, -70);
+			}
+			
+			//eyes
+			fill(255);
+			ellipse(-22, -45, 20);
+			ellipse(22, -45, 20);
+
+			fill(0);
+			ellipse(-22, -45, 10);
+			ellipse(22, -45, 10);
+
+			//nose
+			noFill();
+			beginShape();
+			bezier(0, -45, -10, -20, -15, -10, 10, -20);
+			endShape();
+
+			fill(255);
+			push();
+			if(animate)
+				rotate(PI);
+			else
+				rotate(0);
+
+			arc(0, 5, 50, 20, PI, 0);
+			pop();
+			fill(0);
+			arc(0, -5, 50, 20, PI, 0);
+			triangle(-5,10, 5, 10, 0, 20);
+
+		pop();
+		//pants
+		fill(0);
+		rect(-65, 10, 130, 60, 20, 20);
+		//Draw left leg
+		push();
+			translate(-55, 40);
+			rotate(moveLegL);
+			fill(0);
+			rect(0,0,30,160);
+			rect(-5,160,37.5,20, 10, 10);
+		pop();
+		//Draw Right leg
+		push();
+			translate(30, 50);
+			rotate(moveLegR);
+			fill(0);
+			rect(0,0,30,150);
+			rect(-5,150,37.5,20, 10, 10);
+		pop();
+		//Draw Left Arm
+		push();
+			translate(-75,-105);
+			rotate(moveArmL);
+			fill(230,100,0);
+			rect(0,0,25,150);
+			fill(122, 56, 25);
+			ellipse(12.5,150,30);
+		pop();
+		//Draw Right Arm
+		push();
+			translate(50,-97);
+			rotate(moveArmR);
+			fill(230,100,0);
+			rect(0,0,25,150);
+			fill(122, 56, 25);
+			ellipse(12.5,150,30);
+			//Piece of paper
+			push();
+				translate(12.5,150);
+				rotate(movePaper);
+				fill(255);
+				rect(-50,0,50,50);
+			pop();
+		pop();
+	pop();
+}
+
+function moveMan()
+{
+
+	loc.add(dir);
+	//Move Left Leg
+	if(moveLegL > PI/4)
+		legDownL = true;
+
+	if(moveLegL < 0)
+		legDownL = false;
+
+	if(legDownL==false)
+		moveLegL += 0.02;
+
+	if(legDownL==true)
+		moveLegL -= 0.02;
+
+	//Move Right Leg
+	if(moveLegR < -PI/4)
+		legDownR = true;
+	
+	if(moveLegR > 0)
+		legDownR = false;
+
+	if(legDownR==false)
+		moveLegR -= 0.02;
+	
+	if(legDownR)
+		moveLegR += 0.02;
+
+	//Move Left Arm
+	if(moveArmL > PI/4 + PI/10)
+		armDownL = true;
+
+	if(moveArmL < PI/10)
+		armDownL = false;
+	
+	if(armDownL)
+		moveArmL -= 0.02;
+	else
+		moveArmL += 0.02;
+
+	//Move Right Arm
+	if(moveArmR < -PI/4 - PI/10)
+		armDownR = true;
+
+	if(moveArmR > -PI/10)
+		armDownR = false;
+
+	if(armDownR)
+		moveArmR += 0.02;
+	else
+		moveArmR -= 0.02;
+
+	//Move head
+	if(moveHead < -PI/8)
+		headDown = false;
+
+	if(moveHead > PI/8)
+		headDown = true;
+
+	if(headDown)
+		moveHead -=.02;
+	else
+		moveHead +=.02;
+
+	//Move the Paper
+	if(movePaper > PI/4)
+		paperDown = true;
+	if(movePaper < -PI/4)
+		paperDown = false;
+	if(paperDown)
+		movePaper -= 0.02;
+	else
+		movePaper += 0.02;
+}
+
+function genButtons(a1, a2)
+{
+	var buttons = [];
+
+	buttons.push(new button2(createVector(50, 700),//pos
+							 createVector(350, 40),//size Width, Height
+							 createVector(255, 255, 255),
+							 createVector(255, 255, 255),
+							 createVector(0, 0, 0),
+							 a1));
+
+	buttons.push(new button2(createVector(50, 750),//pos
+							 createVector(350, 40),//size Width, Height
+							 createVector(255, 255, 255),
+							 createVector(255, 255, 255),
+							 createVector(0, 0, 0),
+							 a2));
+	return buttons;
+}
+
+function genButtons2(a1, a2)
+{
+	var buttons = [];
+
+	buttons.push(new button2(createVector(400, 700),//pos
+							 createVector(350, 40),//size Width, Height
+							 createVector(255, 255, 255),
+							 createVector(255, 255, 255),
+							 createVector(0, 0, 0),
+							 a1));
+
+	buttons.push(new button2(createVector(400, 750),//pos
+							 createVector(350, 40),//size Width, Height
+							 createVector(255, 255, 255),
+							 createVector(255, 255, 255),
+							 createVector(0, 0, 0),
+							 a2));
+	return buttons;
+}
+
+function drawAbu()
+{
+	noStroke();
+	push();
+		translate(loc.x,loc.y);
+		fill(230,100,0);
+
+		arc(0,-100, 150, 70, PI, 0);
+		
+		quad(-75, -100, 75, -100, 60, 60, -60, 60);	
+		//Draw Head
+		push();
+			translate(0,-175)
+			fill(122,56,25);
+			rect(-20, 12, 40, 30);	//Neck
+			translate(0,5);
+			rotate(0);
+			fill(122, 56, 25);
+			ellipse(0,-40, 120, 130);//head
+			fill(0);
+			arc(0, -75, 98, 60, PI, 0);
+
+			//Facial Features
+			stroke(0);
+			strokeWeight(2);
+			if(animate)
+			{
+				line(-30, -65, -15, -65);
+				line(15, -65, 30, -65);
+			}
+			else
+			{
+				line(-30, -70, -15, -65);
+				line(15, -65, 30, -70);
+			}
+			
+			//eyes
+			fill(255);
+			ellipse(-22, -45, 20);
+			ellipse(22, -45, 20);
+
+			fill(0);
+			ellipse(-22, -45, 10);
+			ellipse(22, -45, 10);
+
+			//nose
+			noFill();
+			beginShape();
+			bezier(0, -45, -10, -20, -15, -10, 10, -20);
+			endShape();
+
+			fill(255);
+			push();
+			if(animate)
+				line(-25,5,25,5);
+			else
+				arc(0, 5, 50, 20, PI, 0);
+
+			pop();
+			fill(0);
+			arc(0, -5, 50, 20, PI, 0);
+			triangle(-5,10, 5, 10, 0, 20);
+
+		pop();
+		//pants
+		fill(0);
+		rect(-65, 10, 130, 60, 20, 20);
+		//Draw left leg
+		push();
+			translate(-55, 40);
+			rotate(0);
+			fill(0);
+			rect(0,0,30,160);
+			rect(-5,160,37.5,20, 10, 10);
+		pop();
+		//Draw Right leg
+		push();
+			translate(30, 50);
+			rotate(0);
+			fill(0);
+			rect(0,0,30,150);
+			rect(-5,150,37.5,20, 10, 10);
+		pop();
+		//Draw Left Arm
+		push();
+			translate(-75,-105);
+			rotate(PI/10);
+			fill(230,100,0);
+			rect(0,0,25,150);
+			fill(122, 56, 25);
+			ellipse(12.5,150,30);
+		pop();
+		//Draw Right Arm
+		push();
+			translate(50,-97);
+			rotate(-PI/10);
+			fill(230,100,0);
+			rect(0,0,25,150);
+			fill(122, 56, 25);
+			ellipse(12.5,150,30);
+			//Piece of paper
+			push();
+				translate(12.5,150);
+				rotate(0);
+				fill(255);
+				rect(-50,0,50,50);
+			pop();
+		pop();
+	pop();
+}
+
+function drawBackground()
+{	
+	fill(241,193,133);
+	stroke(0);
+	rect(width*.5,height*.2,width*.5,height*.8);
+	drawAbu();
+}
+
+function drawDoorFront(x,y)
+{
+	fill(189,170,147);
+	rect(0,0,width,height);
+	//Draw Door
+	strokeWeight(3);
+	stroke(0);
+	fill(116,106,88);
+	rect(width*.5,height*.2,width*.5,height*.8);
+	//Draw Doorknob
+	fill(0);
+	ellipse(width*.9,height*.65,30);
+}
+
+function drawKid(x,y,scl)
+{
+	noStroke();
+	push();
+		translate(x,y);
+		scale(scl);
+		fill(230,100,0);
+
+		arc(0,-100, 150, 70, PI, 0);
+		
+		quad(-75, -100, 75, -100, 60, 60, -60, 60);	
+		//Draw Head
+		push();
+			translate(0,-175)
+			fill(122,56,25);
+			rect(-20, 12, 40, 30);	//Neck
+			translate(0,5);
+			rotate(0);
+			fill(122, 56, 25);
+			ellipse(0,-40, 120, 130);//head
+			fill(0);
+			arc(0, -75, 98, 60, PI, 0);
+
+			//Facial Features
+			stroke(0);
+			strokeWeight(2);
+				line(-30, -65, -15, -65);
+				line(15, -65, 30, -65);
+				//line(-30, -70, -15, -65);
+				//line(15, -65, 30, -70);
+			
+			//eyes
+			fill(255);
+			ellipse(-22, -45, 20);
+			ellipse(22, -45, 20);
+
+			fill(0);
+			ellipse(-22, -45, 10);
+			ellipse(22, -45, 10);
+
+			//nose
+			noFill();
+			beginShape();
+			bezier(0, -45, -10, -20, -15, -10, 10, -20);
+			endShape();
+
+			fill(255);
+			push();
+				line(-25,5,25,5);
+
+				//arc(0, 5, 50, 20, PI, 0);
+
+			pop();
+			fill(0);
+			arc(0, -5, 50, 20, PI, 0);
+			triangle(-5,10, 5, 10, 0, 20);
+		pop();
+	pop();
+}
+
+function qBox(question) {
+	strokeWeight(1);
+	stroke(0);
+	fill(255);
+	textAlign(CENTER, CENTER);
+	textSize(27);
+	rect(50, 550, 700, 125);
+	fill(0);
+	text(question, 400, 615);
+}
